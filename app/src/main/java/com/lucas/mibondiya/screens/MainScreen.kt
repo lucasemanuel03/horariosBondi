@@ -1,7 +1,9 @@
 package com.lucas.mibondiya.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,8 +20,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -29,17 +32,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.lucas.mibondiya.R
+
 import com.lucas.mibondiya.navigation.AppScreens
 import com.lucas.mibondiya.ui.theme.MiBondiYaTheme
 
@@ -56,11 +62,12 @@ fun MainScreen(navController: NavController){
                     .background(color = MaterialTheme.colorScheme.background),
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text("Horarios Buses") },
+                    title = { Text("Horarios Interurbanos") },
                     colors = topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onBackground,
                     ),
+                    modifier = Modifier.shadow(10.dp),
                 )
             },
             content = { innerPadding ->
@@ -81,19 +88,30 @@ fun MainScreen(navController: NavController){
 
 @Composable
 fun ContenidoPrincipal(modifier: Modifier = Modifier, padding: PaddingValues, navController: NavController){
-    var counter by remember { mutableStateOf(0) }
-
-    Column(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
-        ,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    ) {
+        // Fondo con imagen
+        Image(
+            painter = painterResource(id = R.drawable.fondo),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize()
+        )
 
-        ) {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+            ,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
 
-        InputDestinoRadio(navController)
+            ) {
+
+            InputDestinoRadio(navController)
+        }
     }
 }
 
@@ -101,19 +119,22 @@ fun ContenidoPrincipal(modifier: Modifier = Modifier, padding: PaddingValues, na
 fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier){
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
-    Card(
-        modifier = Modifier.padding(26.dp)
+    ElevatedCard(
+        modifier = Modifier.padding(26.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 16.dp
+        ),
     ) {
         Column(
             modifier
                 .selectableGroup()
-                .background(color = MaterialTheme.colorScheme.primaryContainer)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             Text(
-                text = "Elije Destino",
+                text = "Elige el Destino",
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 24.dp)
@@ -141,7 +162,7 @@ fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier
                     Text(
                         text = text,
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 16.dp)
+                        modifier = Modifier.padding(start = 9.dp)
                     )
                 }
             }
@@ -171,6 +192,5 @@ fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier
 @Composable
 fun defaultPreview(){
     MiBondiYaTheme {
-
     }
 }
