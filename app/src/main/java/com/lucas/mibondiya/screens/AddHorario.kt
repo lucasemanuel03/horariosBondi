@@ -20,9 +20,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -44,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -115,13 +117,15 @@ fun CardAddHorario(modifier: Modifier = Modifier){
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
 
-    Card(
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 12.dp),
         modifier = Modifier.padding(26.dp)
 
     ) {
         Column(
             modifier = modifier
-                .background(color = MaterialTheme.colorScheme.primaryContainer)
+                .background(color = MaterialTheme.colorScheme.surface)
                 .padding(26.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         )
@@ -206,6 +210,7 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido)
             },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth()
@@ -217,6 +222,7 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
         ) {
             opciones.forEach { opcion ->
                 DropdownMenuItem(
+
                     text = { Text(opcion) },
                     onClick = {
                         opcionSeleccionada = opcion
