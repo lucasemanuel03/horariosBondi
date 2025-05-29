@@ -72,10 +72,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview(showSystemUi = true)
 @Composable
+@Preview()
 fun defaultPreview(){
-    MiBondiYaTheme {
+    MiBondiYaTheme(darkTheme = true) {
         AppNavigation()
     }
 }

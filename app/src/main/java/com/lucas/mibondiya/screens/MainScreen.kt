@@ -54,7 +54,7 @@ import com.lucas.mibondiya.ui.theme.MiBondiYaTheme
 @Composable
 fun MainScreen(navController: NavController){
 
-    MiBondiYaTheme {
+
         Scaffold(
             modifier =
                 Modifier
@@ -84,7 +84,7 @@ fun MainScreen(navController: NavController){
 
         )
     }
-}
+
 
 @Composable
 fun ContenidoPrincipal(modifier: Modifier = Modifier, padding: PaddingValues, navController: NavController){
@@ -135,6 +135,7 @@ fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier
 
             Text(
                 text = "Elige el Destino",
+
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 24.dp)
