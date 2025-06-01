@@ -1,5 +1,6 @@
-package com.lucas.horariosbondi.service
-
+package com.lucas.mibondiya.service
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.lucas.mibondiya.R
 
 data class Empresa(
@@ -21,21 +22,23 @@ data class Horario(
     val empresa: Empresa,
     val ciudadInicio: Ciudad,
     val ciudadFin: Ciudad,
-    val seAnuncia: String = ciudadFin.nombre
+    val seAnuncia: String = ciudadFin.nombre,
+    val notas: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium blandit felis. Mauris viverra sed est eu lacinia volutpat."
 )
 
-class MockDataService {
+object MockDataService {
 
     //EMPRESAS
     val fb = Empresa(1, "Fono Bus", R.drawable.fonobus_te_lleva )
     val fam = Empresa(2, "Grupo FAM", R.drawable.grupo_fam)
+    val none = Empresa(2, "NO EMPRESA", R.drawable.grupo_fam)
     val empresas = listOf<Empresa>(fb, fam)
 
     //Ciudad("Rosario", Lat: -32.9587,Long: -60.6931)
     val cba =  Ciudad(1, "Córdoba", -32.9587, -60.6931)
     val jma =  Ciudad(2, "Jesús María", -32.9587, -60.6931)
 
-    private val arrayHorariosToCba = listOf(
+    private val arrayHorariosToCba = mutableStateListOf<Horario>(
         Horario("05:15", "06:45", fb, jma, cba),
         Horario("05:40", "06:50", fb, jma, cba),
         Horario("06:00", "07:10", fb, jma, cba),
@@ -92,7 +95,7 @@ class MockDataService {
     )
 
 
-    private val arrayHorariosToJM = listOf(
+    private val arrayHorariosToJM = mutableStateListOf<Horario>(
     Horario("05:15", "06:25", fb, cba, jma, ""),
     Horario("05:20", "06:30", fb, cba, jma, ""),
     Horario("06:00", "07:10", fb, cba, jma, ""),
@@ -150,15 +153,57 @@ class MockDataService {
     )
 
 
-    fun getHorariosToJM(): List<Horario>{
+    fun getHorariosToJM(): SnapshotStateList<Horario>{
         return arrayHorariosToJM
     }
 
-    fun getHorariosToCba(): List<Horario>{
+    fun getHorariosToCba(): SnapshotStateList<Horario>{
         return arrayHorariosToCba
     }
+
+    fun addHorarioToCba(horario: Horario): Horario{
+        arrayHorariosToCba.add(horario)
+        return horario
+    }
+
+    fun addHorarioToJM(horario: Horario): Horario{
+        arrayHorariosToJM.add(horario)
+        return horario
+    }
+
+    fun crearHorario(sentido: String,
+                     empresaId: String,
+                     horaSalida: String,
+                     horaLlegada: String,
+                     seAnuncia: String,
+                     notas: String): Horario{
+
+        var origen: Ciudad
+        var destino: Ciudad
+        val empresa: Empresa? = empresas.firstOrNull { it.nombre == empresaId}
+
+        if (sentido == "Jesús Maria a Córdoba"){
+            origen = jma
+            destino = cba
+    }
+        else{
+            origen = cba
+            destino = jma
+        }
+        if(empresa != null){
+
+            val horario = Horario(horaSalida, horaLlegada, empresa, origen, destino, seAnuncia, notas)
+            return horario
+        }
+        return Horario(horaSalida, horaLlegada, this.none, origen, destino, seAnuncia, notas)
+    }
+
     fun getAllEmpresas(): List<Empresa>{
         return empresas
+    }
+
+    fun getEmpresa(id: Int): Empresa{
+        return this.empresas[id]
     }
     fun getAllNombreEmpresas(): List<String>{
         val nombreEmpresas = mutableListOf<String>()

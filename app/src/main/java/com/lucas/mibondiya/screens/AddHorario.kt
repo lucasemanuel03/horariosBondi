@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,10 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,15 +43,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.lucas.mibondiya.controller.guardarNuevoHorario
 import com.lucas.mibondiya.navigation.AppScreens
-import java.util.Calendar
+import com.lucas.mibondiya.ui.theme.MiBondiYaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -80,13 +84,13 @@ fun AddHorario(navController: NavController){
             )
         },
         content = { innerPadding ->
-            ContenidoPrincipalHorarios(modifier = Modifier, padding = innerPadding)},
+            ContenidoPrincipalHorarios(padding = innerPadding)},
     )
 }
 
 
 @Composable
-fun ContenidoPrincipalHorarios(modifier: Modifier, padding: PaddingValues ){
+fun ContenidoPrincipalHorarios(padding: PaddingValues ){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,10 +116,15 @@ fun CardAddHorario(modifier: Modifier = Modifier){
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val frecuenciaOptions = listOf<String>("Diario (Lun a Dom)", "Lun A Vie")
     val empresasOptions = listOf<String>("Grupo FAM", "Fono Bus")
-    var horaSalida by remember { mutableStateOf("00:00") }
-    var horaLlegada by remember { mutableStateOf("00:00") }
+    var empresaSeleccionada by remember { mutableStateOf(empresasOptions[0]) }
+    var frecSeleccionada by remember { mutableStateOf(frecuenciaOptions[0]) }
+    var horaSalida by remember { mutableStateOf("0000") }
+    var horaLlegada by remember { mutableStateOf("0110") }
+    var seAnuncia by remember { mutableStateOf("") }
+    var notas by remember { mutableStateOf("") }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
+    var seGuardoHorario by remember {mutableStateOf(false)}
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -164,19 +173,36 @@ fun CardAddHorario(modifier: Modifier = Modifier){
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            DropdownSelector(empresasOptions, "Empresa Prestadora")
-            Spacer(modifier = Modifier.height(16.dp))
-            DropdownSelector(frecuenciaOptions, "Frecuencia")
-
-            Spacer(modifier = Modifier.height(16.dp))
-            InputHoraMinuto("Horario de Salida")
-
-            InputHoraMinuto("Horario de Llegada")
+            DropdownSelector(empresasOptions,
+                            "Empresa Prestadora",
+                            opcionSeleccionada = empresaSeleccionada,
+                            onOptionSelected = {empresaSeleccionada = it})
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            DropdownSelector(frecuenciaOptions,
+                            "Frecuencia",
+                opcionSeleccionada = frecSeleccionada,
+                onOptionSelected = { frecSeleccionada = it })
+
+            Spacer(modifier = Modifier.height(16.dp))
+            HoraField(horaSalida, "Hora de Salida", onHoraChange = { horaSalida = it})
+            Spacer(modifier = Modifier.height(16.dp))
+            HoraField(horaLlegada, "Hora de Llegada", onHoraChange = { horaLlegada = it})
+            Spacer(modifier = Modifier.height(16.dp))
+            InputText("El horario se anuncia a", onTextChange = {seAnuncia = it})
+            Spacer(modifier = Modifier.height(16.dp))
+            InputText("Notas extras... (Opcional)", onTextChange = {notas = it})
             Spacer(modifier = Modifier.height(26.dp))
-            Button(onClick = {/*Pass*/}) {
+
+            Button(onClick = {seGuardoHorario = guardarNuevoHorario(
+                selectedOption,
+                empresaSeleccionada,
+                horaSalida,
+                horaLlegada,
+                seAnuncia,
+                notas )
+            }) {
                 Icon(
                     imageVector = Icons.Default.Done,
                     contentDescription = null,
@@ -186,6 +212,11 @@ fun CardAddHorario(modifier: Modifier = Modifier){
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text("Guardar")
             }
+            Text(text = "Hora llegada: $horaLlegada")
+
+            if (seGuardoHorario){
+                Text(text = "HORARIO CARGADO CORRECTAMENTE!!!")
+            }
         }
     }
 }
@@ -194,15 +225,16 @@ fun CardAddHorario(modifier: Modifier = Modifier){
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
-                     label: String = "Label" ) {
-    var opcionSeleccionada by remember { mutableStateOf(opciones[0]) }
+                     label: String = "Label",
+                     opcionSeleccionada: String,
+                     onOptionSelected: (String) -> Unit) {
     var expandido by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expandido,
         onExpandedChange = { expandido = !expandido }
     ) {
-        TextField(
+        OutlinedTextField(
             value = opcionSeleccionada,
             onValueChange = {},
             readOnly = true,
@@ -212,7 +244,6 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
-                .menuAnchor()
                 .fillMaxWidth()
         )
 
@@ -225,7 +256,7 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
 
                     text = { Text(opcion) },
                     onClick = {
-                        opcionSeleccionada = opcion
+                        onOptionSelected(opcion)
                         expandido = false
                     }
                 )
@@ -235,47 +266,135 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
 }
 
 @Composable
-fun InputText(label: String = "Default"){
+fun InputText(label: String = "Default",
+              onTextChange: (String) -> Unit){
     var text by remember { mutableStateOf(TextFieldValue("")) }
     OutlinedTextField(
         value = text,
         label = { Text(label) },
         onValueChange = {
             text = it
-        }
+            onTextChange(it.text)
+        },
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputHoraMinuto(
-    label: String = "defaultLabel"
+fun HoraField(
+    hora: String,
+    label: String = "label",
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
+    onHoraChange: (String) -> Unit
 ) {
-    val currentTime = Calendar.getInstance()
+    val mask = "00:00"
+    val maskNumber = '0'
+    var isError by remember { mutableStateOf(false) }
 
-    val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
-        is24Hour = true,
+    OutlinedTextField(
+        value = hora,
+        onValueChange = {
+            val soloDigitos = it.filter { it.isDigit() }.take(4)
+
+            //Validar si tiene 4 dígitos
+            if (soloDigitos.length == 4) {
+                val horas = soloDigitos.substring(0, 2).toIntOrNull()
+                val minutos = soloDigitos.substring(2, 4).toIntOrNull()
+
+                //Validar rango: horas 0–23, minutos 0–59
+                if (horas != null && minutos != null && horas in 0..23 && minutos in 0..59) {
+                    onHoraChange(soloDigitos)
+                } else {
+                    isError = true
+                }
+            } else {
+                // Aceptar parcial si tiene menos de 4 dígitos
+                isError = false // aún no se completa
+                onHoraChange(soloDigitos)
+            }
+        },
+        label = { Text(label) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        visualTransformation = HoraVisualTransformation(mask, maskNumber),
+        isError = isError,
+        modifier = modifier.fillMaxWidth()
     )
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    if (isError) {
         Text(
-            modifier = Modifier.padding(10.dp),
-            text = label,
+            text = "Hora inválida",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
         )
+    }
+}
 
-        TimeInput(
-            state = timePickerState,
-        )
+class HoraVisualTransformation(
+    private val mask: String,
+    private val maskNumber: Char
+) : VisualTransformation {
+
+    private val maxLength = mask.count { it == maskNumber }
+
+    override fun filter(text: AnnotatedString): TransformedText {
+        val trimmed = if (text.length > maxLength) text.take(maxLength) else text
+
+        val annotatedString = buildAnnotatedString {
+            if (trimmed.isEmpty()) return@buildAnnotatedString
+
+            var maskIndex = 0
+            var textIndex = 0
+            while (textIndex < trimmed.length && maskIndex < mask.length) {
+                if (mask[maskIndex] != maskNumber) {
+                    val nextDigitIndex = mask.indexOf(maskNumber, maskIndex)
+                    append(mask.substring(maskIndex, nextDigitIndex))
+                    maskIndex = nextDigitIndex
+                }
+                append(trimmed[textIndex++])
+                maskIndex++
+            }
+        }
+
+        return TransformedText(annotatedString, HoraOffsetMapper(mask, maskNumber))
+    }
+}
+
+private class HoraOffsetMapper(
+    val mask: String,
+    val numberChar: Char
+) : OffsetMapping {
+
+    override fun originalToTransformed(offset: Int): Int {
+        val digitsBefore = offset.coerceAtMost(mask.count { it == numberChar })
+        var nonDigitCount = 0
+        var countDigits = 0
+        var i = 0
+
+        while (i < mask.length && countDigits < digitsBefore) {
+            if (mask[i] == numberChar) {
+                countDigits++
+            } else {
+                nonDigitCount++
+            }
+            i++
+        }
+
+        return (digitsBefore + nonDigitCount).coerceAtMost(mask.length)
+    }
+
+    override fun transformedToOriginal(offset: Int): Int {
+        val limitedOffset = offset.coerceAtMost(mask.length)
+        return mask.take(limitedOffset).count { it == numberChar }
     }
 }
 
 
 @Preview(showSystemUi = false, showBackground = true)
 @Composable
-fun DefaultPreview(){
-    ContenidoPrincipalHorarios(modifier = Modifier, padding = PaddingValues(0.dp))
+fun DefaultPreview() {
+    MiBondiYaTheme { // 👈 Asegurate de usar tu theme real
+        ContenidoPrincipalHorarios(padding = PaddingValues(0.dp))
+    }
 }
 
 

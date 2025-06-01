@@ -41,13 +41,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lucas.mibondiya.R
-
 import com.lucas.mibondiya.navigation.AppScreens
-import com.lucas.mibondiya.ui.theme.MiBondiYaTheme
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -186,12 +183,5 @@ fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier
                     text = "Buscar")
             }
         }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun defaultPreview(){
-    MiBondiYaTheme {
     }
 }

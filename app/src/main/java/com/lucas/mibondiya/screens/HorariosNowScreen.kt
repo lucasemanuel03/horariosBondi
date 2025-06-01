@@ -1,7 +1,6 @@
 package com.lucas.mibondiya.screens
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,22 +9,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -39,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -53,10 +45,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.lucas.horariosbondi.service.Horario
-import com.lucas.horariosbondi.service.MockDataService
+import com.lucas.mibondiya.service.Horario
+import com.lucas.mibondiya.service.MockDataService
 import com.lucas.mibondiya.navigation.AppScreens
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -98,9 +89,9 @@ fun HorariosNowScreen(navController: NavController, opcion: String = ""){
 @Composable
 fun ContenidoPrincipal(opcion: String = "",
                        padding: PaddingValues = PaddingValues(28.dp),
-                       modifier: Modifier = Modifier){
+                       @SuppressLint("ModifierParameter") modifier: Modifier = Modifier){
 
-    val datosMock = MockDataService()
+
     var horarios = listOf<Horario>()
 
     //HORA ACTUAL
@@ -108,9 +99,9 @@ fun ContenidoPrincipal(opcion: String = "",
     val ahora = LocalTime.now()
 
     horarios = if (opcion == "Jesús Maria a Córdoba"){
-        datosMock.getHorariosToCba()
+        MockDataService.getHorariosToCba()
     }else{
-        datosMock.getHorariosToJM()
+        MockDataService.getHorariosToJM()
     }
 
     val horariosOrdenados = horarios.sortedBy {
@@ -133,7 +124,7 @@ fun ContenidoPrincipal(opcion: String = "",
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
-        headerLeyenda()
+        HeaderLeyenda()
         LazyColumn(state = listState) {
             items(horariosOrdenados) { horario ->
                 val yaPaso = LocalTime.parse(horario.horaSalida, formatter) < ahora
@@ -145,7 +136,7 @@ fun ContenidoPrincipal(opcion: String = "",
 
 
 @Composable
-fun headerLeyenda() {
+fun HeaderLeyenda() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -161,7 +152,7 @@ fun headerLeyenda() {
         Spacer(modifier = Modifier.weight(1f))
 
         Row(modifier = Modifier.weight(5f)) {
-            Row(modifier = Modifier.weight(8f),){
+            Row(modifier = Modifier.weight(8f)){
                 Icon(
                     imageVector = Icons.Rounded.KeyboardArrowUp,
                     contentDescription = "Sale",
@@ -178,7 +169,7 @@ fun headerLeyenda() {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Row(modifier = Modifier.weight(8f),) {
+            Row(modifier = Modifier.weight(8f)) {
                 Icon(
                     imageVector = Icons.Rounded.KeyboardArrowDown,
                     contentDescription = "Sale",
