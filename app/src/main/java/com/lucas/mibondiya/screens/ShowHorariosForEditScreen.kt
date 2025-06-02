@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,7 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -216,16 +216,22 @@ fun CardHorarioToEdit(navController: NavController, horario: Horario, opcion: St
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer),
                         modifier = Modifier
                             .padding(8.dp)
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
+
+
                     ) {
                         Column(
-                            modifier = Modifier.padding(8.dp)
+                            modifier = Modifier
+                                .padding(8.dp)
+
                         ) {
                             Text(
-                                style = MaterialTheme.typography.labelLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 text = "Datos Extras del Horario:")
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(text = horario.notas)
                         }
                     }

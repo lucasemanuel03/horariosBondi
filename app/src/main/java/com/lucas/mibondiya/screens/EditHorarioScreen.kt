@@ -63,7 +63,7 @@ fun EditHorarioScreen(navController: NavController, sentido: String = "", idHora
                 title = { Text("Editar Horarios") },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.navigate(route = AppScreens.MainScreen.route) }) {
+                        navController.navigate(route = AppScreens.ShowHorariosForEditScreen.route) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description"
