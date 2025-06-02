@@ -214,6 +214,18 @@ object MockDataService {
         }
     }
 
+    fun deleteHorarioById(id: Int, sentido: String): Boolean{
+        if (sentido == "Jesús Maria a Córdoba"){
+            arrayHorariosToCba.removeIf { it.id == id }
+            return true
+        } else{
+            arrayHorariosToJM.removeIf { it.id == id }
+            return true
+        }
+        return false
+
+    }
+
     fun editHorario(id: Int,
                     sentido: String,
                     empresaId: String,

@@ -22,7 +22,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -123,13 +127,12 @@ fun ContenidoPrincipal(navController: NavController, innerPadding: PaddingValues
 fun CardHorarioToEdit(navController: NavController, horario: Horario, opcion: String, modifier: Modifier){
     val datosHorario = convertHorarioString(horario)
     var expandida by remember { mutableStateOf(false) }
+    var openAlertDialog by remember { mutableStateOf(false) }
 
     // VARIABLES PARA ESTILO TARJETA HORARIO
     var backgroundColor = MaterialTheme.colorScheme.surfaceBright
     var fontColorSalida = MaterialTheme.colorScheme.primary
     var fontColorLlegada = MaterialTheme.colorScheme.secondary
-
-
 
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
@@ -240,17 +243,66 @@ fun CardHorarioToEdit(navController: NavController, horario: Horario, opcion: St
 
                         Button(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                            onClick = {}) {
+                            onClick = { openAlertDialog = true}) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
                                 modifier = Modifier.size(ButtonDefaults.IconSize))
                             Text("Eliminar") }
+
+                        DialogDelete(openAlertDialog, horario.id, opcion, { openAlertDialog = false }, { openAlertDialog = false })
                     }
                 }
 
             }
         }
+    }
+
+}
+
+@Composable
+fun DialogDelete(
+    openDialog: Boolean,
+    idHorario: Int = 1,
+    opcion: String = "",
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit){
+
+    if (openDialog){
+        AlertDialog(
+            icon = {
+                Icon(imageVector = Icons.Default.Info,
+                    contentDescription = "infoIcon")
+            },
+            title = {
+                Text(text = "¿Está seguro de eliminar este Horario?")
+            },
+            text = {
+                Text(text = "Esta acción no es reversible.")
+            },
+            onDismissRequest = {
+                onDismissRequest() },
+
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        MockDataService.deleteHorarioById(idHorario, opcion)
+                        onConfirmation()
+                    }
+                ) {
+                    Text("Confirmar")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onDismissRequest()
+                    }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
 }

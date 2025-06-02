@@ -56,8 +56,10 @@ fun guardarHorarioEditado(id: Int,
 fun getHorarioById(id: Int, sentido: String): Horario?{
 
     return MockDataService.getHorarioById(id, sentido)
+}
 
-
+fun deleteHorarioById(id: Int, sentido: String): Boolean{
+    return MockDataService.deleteHorarioById(id, sentido)
 }
 
 fun horaConvertida(tiempo: String): String {
