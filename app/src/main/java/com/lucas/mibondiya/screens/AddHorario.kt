@@ -190,9 +190,9 @@ fun CardAddHorario(modifier: Modifier = Modifier){
             Spacer(modifier = Modifier.height(16.dp))
             HoraField(horaLlegada, "Hora de Llegada", onHoraChange = { horaLlegada = it})
             Spacer(modifier = Modifier.height(16.dp))
-            InputText("El horario se anuncia a", onTextChange = {seAnuncia = it})
+            InputText(label = "El horario se anuncia a", onTextChange = {seAnuncia = it})
             Spacer(modifier = Modifier.height(16.dp))
-            InputText("Notas extras... (Opcional)", onTextChange = {notas = it})
+            InputText(label = "Notas extras... (Opcional)", onTextChange = {notas = it})
             Spacer(modifier = Modifier.height(26.dp))
 
             Button(onClick = {seGuardoHorario = guardarNuevoHorario(
@@ -245,6 +245,7 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
+                .menuAnchor()
         )
 
         ExposedDropdownMenu(
@@ -266,10 +267,11 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
 }
 
 @Composable
-fun InputText(label: String = "Default",
+fun InputText(value: String = "", label: String = "Default",
               onTextChange: (String) -> Unit){
-    var text by remember { mutableStateOf(TextFieldValue("")) }
+    var text by remember { mutableStateOf(TextFieldValue(value)) }
     OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(),
         value = text,
         label = { Text(label) },
         onValueChange = {

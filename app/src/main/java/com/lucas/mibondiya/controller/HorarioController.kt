@@ -1,5 +1,6 @@
 package com.lucas.mibondiya.controller
 
+import com.lucas.mibondiya.service.Horario
 import com.lucas.mibondiya.service.MockDataService
 
 fun guardarNuevoHorario(sentido: String,
@@ -36,6 +37,27 @@ fun saveAtMockHorario(sentido: String,
         return true
     }
     return false
+}
+
+fun guardarHorarioEditado(id: Int,
+                          sentido: String,
+                          empresaId: String,
+                          horaSalida: String,
+                          horaLlegada: String,
+                          seAnuncia: String,
+                          notas: String): Boolean{
+
+    var horaSalidaConv = horaConvertida(horaSalida)
+    var horaLlegadaConv = horaConvertida(horaLlegada)
+
+    return MockDataService.editHorario(id, sentido, empresaId, horaSalidaConv, horaLlegadaConv, seAnuncia, notas)
+}
+
+fun getHorarioById(id: Int, sentido: String): Horario?{
+
+    return MockDataService.getHorarioById(id, sentido)
+
+
 }
 
 fun horaConvertida(tiempo: String): String {

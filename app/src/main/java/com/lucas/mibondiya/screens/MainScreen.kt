@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -108,6 +109,8 @@ fun ContenidoPrincipal(modifier: Modifier = Modifier, padding: PaddingValues, na
             ) {
 
             InputDestinoRadio(navController)
+            Spacer(modifier = Modifier.height(16.dp))
+            GoToEditHorariosCard(navController)
         }
     }
 }
@@ -184,4 +187,29 @@ fun InputDestinoRadio(navController: NavController,modifier: Modifier = Modifier
             }
         }
     }
+}
+
+
+@Composable
+fun GoToEditHorariosCard(navController: NavController){
+
+    ElevatedCard() {
+        Button(
+            onClick = { navController.navigate(route = AppScreens.ShowHorariosForEditScreen.route) }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = null,
+                modifier = Modifier.size(ButtonDefaults.IconSize)
+
+            )
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Text(
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary,
+                text = "Ir a Edicion")
+        }
+    }
+
+
 }
