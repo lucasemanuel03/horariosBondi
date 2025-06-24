@@ -46,7 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.lucas.mibondiya.service.Horario
+import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.service.MockDataService
 import com.lucas.mibondiya.navigation.AppScreens
 import java.time.LocalTime
@@ -92,7 +92,7 @@ fun ContenidoPrincipal(opcion: String = "",
                        @SuppressLint("ModifierParameter") modifier: Modifier = Modifier){
 
 
-    var horarios = listOf<Horario>()
+    var horarios = listOf<HorarioMock>()
 
     //HORA ACTUAL
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -189,7 +189,7 @@ fun HeaderLeyenda() {
 
 
 @Composable
-fun CardHorario(horario: Horario, modifier: Modifier, yaPaso: Boolean){
+fun CardHorario(horario: HorarioMock, modifier: Modifier, yaPaso: Boolean){
     val datosHorario = convertHorarioString(horario)
 
     // VARIABLES PARA ESTILO TARJETA HORARIO
@@ -298,7 +298,7 @@ data class DatosHorarioStr(val horaSalida: String,
                            val seAnuncia: String
     )
 
-fun convertHorarioString(horario: Horario): DatosHorarioStr {
+fun convertHorarioString(horario: HorarioMock): DatosHorarioStr {
     val horaSalida = horario.horaSalida
     val horaLlegada = horario.horaLlegada
     val empresa = horario.empresa.nombre

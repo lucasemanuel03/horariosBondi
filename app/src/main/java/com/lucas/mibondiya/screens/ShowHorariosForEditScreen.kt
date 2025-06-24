@@ -55,8 +55,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.navigation.AppScreens
-import com.lucas.mibondiya.service.Horario
 import com.lucas.mibondiya.service.MockDataService
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -96,7 +96,7 @@ fun ShowHorariosForEditScreen(navController: NavController, opcion: String = "")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ContenidoPrincipal(navController: NavController, innerPadding: PaddingValues, opcion: String = ""){
-    var horarios = listOf<Horario>()
+    var horarios = listOf<HorarioMock>()
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
     horarios = if (opcion == "Jesús Maria a Córdoba"){
         MockDataService.getHorariosToCba()
@@ -124,7 +124,7 @@ fun ContenidoPrincipal(navController: NavController, innerPadding: PaddingValues
 }
 
 @Composable
-fun CardHorarioToEdit(navController: NavController, horario: Horario, opcion: String, modifier: Modifier){
+fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion: String, modifier: Modifier){
     val datosHorario = convertHorarioString(horario)
     var expandida by remember { mutableStateOf(false) }
     var openAlertDialog by remember { mutableStateOf(false) }

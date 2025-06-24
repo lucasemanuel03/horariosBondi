@@ -46,8 +46,8 @@ import androidx.navigation.NavController
 import com.lucas.mibondiya.controller.getHorarioById
 import com.lucas.mibondiya.controller.guardarHorarioEditado
 import com.lucas.mibondiya.controller.guardarNuevoHorario
+import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.navigation.AppScreens
-import com.lucas.mibondiya.service.Horario
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,17 +88,16 @@ fun EditHorarioScreen(navController: NavController, sentido: String = "", idHora
 }
 
 @Composable
-fun ContenidoPrincipal(innerPadding: PaddingValues, horario: Horario?, sentido: String = ""){
+fun ContenidoPrincipal(innerPadding: PaddingValues, horario: HorarioMock?, sentido: String = ""){
     CardEditHorario(horario = horario, sentido =  sentido, padding = innerPadding)
 
 }
 
 // CREAR VALIDACIÓN DE QUE EL HORARIO NO SEA NULL!!!
 
-@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardEditHorario(modifier: Modifier = Modifier, horario: Horario?, sentido:String = "", padding: PaddingValues){
+fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentido:String = "", padding: PaddingValues){
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val frecuenciaOptions = listOf<String>("Diario (Lun a Dom)", "Lun A Vie")
     val empresasOptions = listOf<String>("Grupo FAM", "Fono Bus")
