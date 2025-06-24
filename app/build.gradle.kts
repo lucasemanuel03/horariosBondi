@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -42,7 +43,11 @@ android {
 dependencies {
 
     val nav_version = "2.9.0"
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    val room_version = "2.7.2"
+
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)
     implementation("androidx.compose.material3:material3:1.3.2") // o versión más reciente
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -30,8 +30,9 @@ fun AppNavigation(){
             HorariosNowScreen(navController, opcion)
         }
 
-        composable(route = AppScreens.ShowHorariosForEditScreen.route){
-            ShowHorariosForEditScreen(navController)
+        composable(route = AppScreens.ShowHorariosForEditScreen.route + "{opcion}"){
+            backStackEntry -> val opcion = backStackEntry.arguments?.getString("opcion") ?: ""
+            ShowHorariosForEditScreen(navController, opcion)
         }
 
         composable(route = AppScreens.EditHorarioScreen.route + "/{opcion}/{id}"){

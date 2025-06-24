@@ -89,7 +89,7 @@ fun EditHorarioScreen(navController: NavController, sentido: String = "", idHora
 
 @Composable
 fun ContenidoPrincipal(innerPadding: PaddingValues, horario: Horario?, sentido: String = ""){
-    CardEditHorario(horario = horario, sentido =  sentido)
+    CardEditHorario(horario = horario, sentido =  sentido, padding = innerPadding)
 
 }
 
@@ -98,11 +98,11 @@ fun ContenidoPrincipal(innerPadding: PaddingValues, horario: Horario?, sentido: 
 @Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardEditHorario(modifier: Modifier = Modifier, horario: Horario?, sentido:String = ""){
+fun CardEditHorario(modifier: Modifier = Modifier, horario: Horario?, sentido:String = "", padding: PaddingValues){
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val frecuenciaOptions = listOf<String>("Diario (Lun a Dom)", "Lun A Vie")
     val empresasOptions = listOf<String>("Grupo FAM", "Fono Bus")
-    var empresaSeleccionada by remember { mutableStateOf(empresasOptions[0]) }
+    var empresaSeleccionada by remember { mutableStateOf(horario?.empresa?.nombre ?: "Sin Empresa") }
     var frecSeleccionada by remember { mutableStateOf(frecuenciaOptions[0]) }
     var seAnuncia by remember { mutableStateOf("") }
     var notas by remember { mutableStateOf("") }
@@ -130,7 +130,7 @@ fun CardEditHorario(modifier: Modifier = Modifier, horario: Horario?, sentido:St
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 12.dp),
-        modifier = Modifier.padding(26.dp)
+        modifier = Modifier.padding(padding)
 
     ) {
 

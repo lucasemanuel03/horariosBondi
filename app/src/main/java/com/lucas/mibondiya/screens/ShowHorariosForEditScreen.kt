@@ -64,7 +64,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowHorariosForEditScreen(navController: NavController){
+fun ShowHorariosForEditScreen(navController: NavController, opcion: String = ""){
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -88,7 +88,7 @@ fun ShowHorariosForEditScreen(navController: NavController){
         },
         content = { innerPadding ->
 
-            ContenidoPrincipal(navController, innerPadding)},
+            ContenidoPrincipal(navController, innerPadding, opcion)},
     )
 }
 
