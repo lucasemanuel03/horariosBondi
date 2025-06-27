@@ -1,6 +1,7 @@
 package com.lucas.mibondiya.screens
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
@@ -31,6 +32,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -41,6 +43,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,19 +56,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.lucas.mibondiya.data.model.HorarioMock
+import com.lucas.mibondiya.data.model.HorarioCompleto
 import com.lucas.mibondiya.navigation.AppScreens
 import com.lucas.mibondiya.service.MockDataService
+import com.lucas.mibondiya.viewModel.HorarioViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowHorariosForEditScreen(navController: NavController, opcion: String = ""){
+
+    val viewModelHorario : HorarioViewModel = hiltViewModel()
+
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -88,21 +98,37 @@ fun ShowHorariosForEditScreen(navController: NavController, opcion: String = "")
         },
         content = { innerPadding ->
 
-            ContenidoPrincipal(navController, innerPadding, opcion)},
+            ContenidoPrincipal(navController, innerPadding, opcion, viewModelHorario)},
     )
 }
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ContenidoPrincipal(navController: NavController, innerPadding: PaddingValues, opcion: String = ""){
-    var horarios = listOf<HorarioMock>()
-    val formatter = DateTimeFormatter.ofPattern("HH:mm")
-    horarios = if (opcion == "Jesús Maria a Córdoba"){
-        MockDataService.getHorariosToCba()
-    }else{
-        MockDataService.getHorariosToJM()
+fun ContenidoPrincipal(navController: NavController,
+                       innerPadding: PaddingValues,
+                       opcion: String = "",
+                       viewModelHorario: HorarioViewModel){
+
+
+    // ==============================================================
+    // TOMANDO LOS DATOS DESDE LA BASE DE DATOS SEGUN CIUDAD DESTINO
+    val idCiudadDestino = if (opcion == "Jesús Maria a Córdoba") 2 else 1
+
+    LaunchedEffect(idCiudadDestino) {
+        viewModelHorario.setCiudadFin(idCiudadDestino)
     }
+    val horarios by viewModelHorario.horarios.collectAsState()
+    Log.d("HORARIOS", "Cantidad de horarios: ${horarios.size}")
+    // =============================================================
+
+    // === LOOP ESPERANDO Para no romper ===
+    if (horarios.isEmpty()) {
+        CircularProgressIndicator()
+        return
+    }
+
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
 
     val horariosOrdenados = horarios.sortedBy {
         LocalTime.parse(it.horaSalida, formatter)
@@ -124,8 +150,7 @@ fun ContenidoPrincipal(navController: NavController, innerPadding: PaddingValues
 }
 
 @Composable
-fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion: String, modifier: Modifier){
-    val datosHorario = convertHorarioString(horario)
+fun CardHorarioToEdit(navController: NavController, horario: HorarioCompleto, opcion: String, modifier: Modifier){
     var expandida by remember { mutableStateOf(false) }
     var openAlertDialog by remember { mutableStateOf(false) }
 
@@ -154,7 +179,7 @@ fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion
 
             {
                 Image(
-                    painter = painterResource(id = datosHorario.idLogo), // reemplazá con tu imagen
+                    painter = painterResource(id = horario.empresaImagenId), // reemplazá con tu imagen
                     contentDescription = "logo_empresa",
                     modifier = Modifier
                         .size(66.dp)
@@ -178,7 +203,7 @@ fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion
                             style = MaterialTheme.typography.headlineLarge,
                             color = fontColorSalida,
                             fontWeight = FontWeight.Bold,
-                            text = datosHorario.horaSalida)
+                            text = horario.horaSalida)
 
 
                         Spacer(modifier = Modifier.weight(1f))
@@ -186,14 +211,14 @@ fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion
                             modifier = Modifier.weight(8f),
                             style = MaterialTheme.typography.headlineLarge,
                             color = fontColorLlegada,
-                            text = datosHorario.horaLlegada)
+                            text = horario.horaLlegada)
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            text = "Por ${datosHorario.empresa}")
+                            text = "Por ${horario.empresaNombre}")
 
                         Spacer(modifier = Modifier.width(2.dp))
                         Icon(
@@ -207,7 +232,7 @@ fun CardHorarioToEdit(navController: NavController, horario: HorarioMock, opcion
                     Text(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.secondary,
-                        text = "Se anuncia a: ${datosHorario.seAnuncia}")
+                        text = "Se anuncia a: ${horario.seAnuncia}")
                 }
 
             }
