@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.lucas.mibondiya.controller.getHorarioById
 import com.lucas.mibondiya.controller.guardarHorarioEditado
-import com.lucas.mibondiya.controller.guardarNuevoHorario
 import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.navigation.AppScreens
 

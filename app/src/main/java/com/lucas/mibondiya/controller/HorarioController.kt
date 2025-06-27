@@ -1,22 +1,10 @@
 package com.lucas.mibondiya.controller
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.service.MockDataService
+import com.lucas.mibondiya.viewModel.HorarioViewModel
 
-fun guardarNuevoHorario(sentido: String,
-                        empresaId: String,
-                        horaSalida: String,
-                        horaLlegada: String,
-                        seAnuncia: String = "",
-                        notas: String = "",
-                        ): Boolean{
-
-    //REFORMAR HORA
-    var horaSalidaConv = horaConvertida(horaSalida)
-    var horaLlegadaConv = horaConvertida(horaLlegada)
-    // POR AHORA GUARDAR EN UN ARCHIVO MOCK
-    return saveAtMockHorario(sentido, empresaId, horaSalidaConv, horaLlegadaConv, seAnuncia, notas)
-}
 
 
 fun saveAtMockHorario(sentido: String,

@@ -100,7 +100,7 @@ fun ContenidoPrincipal(opcion: String = "",
 
     // ==============================================================
     // TOMANDO LOS DATOS DESDE LA BASE DE DATOS SEGUN CIUDAD DESTINO
-    val idCiudadDestino = if (opcion == "Jesús Maria a Córdoba") 1 else 2
+    val idCiudadDestino = if (opcion == "Jesús Maria a Córdoba") 2 else 1
 
     LaunchedEffect(idCiudadDestino) {
         viewModel.setCiudadFin(idCiudadDestino)

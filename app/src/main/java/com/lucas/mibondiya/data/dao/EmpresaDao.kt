@@ -5,18 +5,19 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.lucas.mibondiya.data.model.Empresa
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EmpresaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg empresas: Empresa)
+    suspend fun insert(vararg empresas: Empresa)
 
     @Query("SELECT * FROM empresas")
-    fun getAll() : Array<Empresa>
+    fun getAll() : Flow<List<Empresa>>
 
     @Query("SELECT * FROM empresas WHERE id=:id")
-    fun getById(id : Int) : Empresa
+    suspend fun getById(id : Int) : Empresa
 
 
 }

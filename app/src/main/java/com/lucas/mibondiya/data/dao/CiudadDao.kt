@@ -5,17 +5,18 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.lucas.mibondiya.data.model.Ciudad
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CiudadDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg ciudades : Ciudad)
+    suspend fun insert(vararg ciudades : Ciudad)
 
     //GETS
     @Query("SELECT * FROM  ciudades")
-    fun getAll() : List<Ciudad>
+    fun getAll() : Flow<List<Ciudad>>
 
     @Query("SELECT * FROM ciudades WHERE id=:id")
-    fun getById(id : Int) : List<Ciudad>
+    suspend fun getById(id : Int) : Ciudad
 }

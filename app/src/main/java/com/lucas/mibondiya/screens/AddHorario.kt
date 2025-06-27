@@ -1,6 +1,7 @@
 package com.lucas.mibondiya.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,15 +57,22 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.lucas.mibondiya.controller.guardarNuevoHorario
+import com.lucas.mibondiya.controller.horaConvertida
+import com.lucas.mibondiya.data.model.Empresa
 import com.lucas.mibondiya.navigation.AppScreens
 import com.lucas.mibondiya.ui.theme.MiBondiYaTheme
+import com.lucas.mibondiya.viewModel.HorarioViewModel
+import com.lucas.mibondiya.viewModel.ReferenciasViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AddHorario(navController: NavController){
+    val viewModel: HorarioViewModel = hiltViewModel() // TRAIGO EL VIEWMODEL DESDE HILT **INYECTION**
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -84,13 +94,13 @@ fun AddHorario(navController: NavController){
             )
         },
         content = { innerPadding ->
-            ContenidoPrincipalHorarios(padding = innerPadding)},
+            ContenidoPrincipalHorarios(padding = innerPadding, viewModel)},
     )
 }
 
 
 @Composable
-fun ContenidoPrincipalHorarios(padding: PaddingValues ){
+fun ContenidoPrincipalHorarios(padding: PaddingValues, viewModel: HorarioViewModel ){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -106,16 +116,27 @@ fun ContenidoPrincipalHorarios(padding: PaddingValues ){
             text = "AGREGAR NUEVO HORARIO",
         )
 
-        CardAddHorario()
+        CardAddHorario(viewModel = viewModel)
     }
 }
 
 
 @Composable
-fun CardAddHorario(modifier: Modifier = Modifier){
+fun CardAddHorario(modifier: Modifier = Modifier, viewModel: HorarioViewModel){
+
+    // TOMANDO EL LISTADO DE EMPRESAS DESDE LA BASE DE DATOS
+    val viewModelRef: ReferenciasViewModel = hiltViewModel()
+    val listaEmpresasDB by viewModelRef.empresas.collectAsState()
+
+    val empresasOptions = listaEmpresasDB // listado es igual a las empresas en base de datos
+
+    if (empresasOptions.isEmpty()) {
+        CircularProgressIndicator()
+        return
+    }
+
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val frecuenciaOptions = listOf<String>("Diario (Lun a Dom)", "Lun A Vie")
-    val empresasOptions = listOf<String>("Grupo FAM", "Fono Bus")
     var empresaSeleccionada by remember { mutableStateOf(empresasOptions[0]) }
     var frecSeleccionada by remember { mutableStateOf(frecuenciaOptions[0]) }
     var horaSalida by remember { mutableStateOf("0000") }
@@ -173,7 +194,7 @@ fun CardAddHorario(modifier: Modifier = Modifier){
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            DropdownSelector(empresasOptions,
+            DropdownSelectorEmpresa(empresasOptions,
                             "Empresa Prestadora",
                             opcionSeleccionada = empresaSeleccionada,
                             onOptionSelected = {empresaSeleccionada = it})
@@ -201,7 +222,8 @@ fun CardAddHorario(modifier: Modifier = Modifier){
                 horaSalida,
                 horaLlegada,
                 seAnuncia,
-                notas )
+                notas,
+                viewModel)
             }) {
                 Icon(
                     imageVector = Icons.Default.Done,
@@ -258,6 +280,51 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
                     text = { Text(opcion) },
                     onClick = {
                         onOptionSelected(opcion)
+                        expandido = false
+                    }
+                )
+            }
+        }
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownSelectorEmpresa(opciones: List<Empresa>,
+                            label: String = "Label",
+                            opcionSeleccionada: Empresa,
+                            onOptionSelected: (Empresa) -> Unit) {
+    var expandido by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expandido,
+        onExpandedChange = { expandido = !expandido }
+    ) {
+        OutlinedTextField(
+            value = opcionSeleccionada.nombre,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido)
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expandido,
+            onDismissRequest = { expandido = false }
+        ) {
+            opciones.forEach { empresa ->
+                DropdownMenuItem(
+
+                    text = { Text(empresa.nombre) },
+                    onClick = {
+                        onOptionSelected(empresa)
                         expandido = false
                     }
                 )
@@ -390,14 +457,49 @@ private class HoraOffsetMapper(
     }
 }
 
+fun guardarNuevoHorario(sentido: String,
+                        empresa: Empresa,
+                        horaSalida: String,
+                        horaLlegada: String,
+                        seAnuncia: String = "",
+                        notas: String = "",
+                        viewModel: HorarioViewModel
+): Boolean{
 
-@Preview(showSystemUi = false, showBackground = true)
-@Composable
-fun DefaultPreview() {
-    MiBondiYaTheme { // 👈 Asegurate de usar tu theme real
-        ContenidoPrincipalHorarios(padding = PaddingValues(0.dp))
+    var empresaId = empresa.id
+    val ciudadDestinoId :Int
+    val ciudadInicioId :Int
+
+    // VERIFICAR SENTIDO
+    if (sentido == "Jesús Maria a Córdoba"){
+        Log.d("SENTIDO_SELECT", sentido)
+        ciudadInicioId = 1
+        ciudadDestinoId = 2
+    } else{
+        ciudadInicioId = 2
+        ciudadDestinoId = 1
     }
+
+    //REFORMAR HORA
+    var horaSalidaConv = horaConvertida(horaSalida)
+    var horaLlegadaConv = horaConvertida(horaLlegada)
+
+    Log.d("DATOS_ANTES_DE_INSERT: ", "idempresa: $empresaId, ciudadDestino: $ciudadDestinoId, C.origen: $ciudadInicioId")
+
+    viewModel.insertarHorario(horaSalidaConv, horaLlegadaConv, empresaId, ciudadInicioId, ciudadDestinoId, seAnuncia, notas)
+
+    return true
+
 }
+
+
+//@Preview(showSystemUi = false, showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    MiBondiYaTheme { // 👈 Asegurate de usar tu theme real
+//        ContenidoPrincipalHorarios(padding = PaddingValues(0.dp))
+//    }
+//}
 
 
 
