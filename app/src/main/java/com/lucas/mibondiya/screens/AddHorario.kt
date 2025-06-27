@@ -293,7 +293,7 @@ fun DropdownSelector(opciones: List<String> = listOf<String>("opc1", "opc2"),
 @Composable
 fun DropdownSelectorEmpresa(opciones: List<Empresa>,
                             label: String = "Label",
-                            opcionSeleccionada: Empresa,
+                            opcionSeleccionada: Empresa?,
                             onOptionSelected: (Empresa) -> Unit) {
     var expandido by remember { mutableStateOf(false) }
 
@@ -302,7 +302,7 @@ fun DropdownSelectorEmpresa(opciones: List<Empresa>,
         onExpandedChange = { expandido = !expandido }
     ) {
         OutlinedTextField(
-            value = opcionSeleccionada.nombre,
+            value = opcionSeleccionada?.nombre ?: "nn",
             onValueChange = {},
             readOnly = true,
             label = { Text(label) },

@@ -16,6 +16,21 @@ interface HorarioDao {
     @Delete()
     suspend fun delete(horario : Horario)
 
+    //DELETE
+    @Query("DELETE FROM horarios WHERE id = :horarioId")
+    suspend fun deleteById(horarioId: Int): Int
+
+    //UPDATE
+    @Query("""  UPDATE horarios 
+                SET empresa_id = :idEmpresa, horaSalida = :horaDeSalida, horaLlegada = :horaDeLlegada, seAnuncia = :seAnuncia, notas = :nota 
+                WHERE id = :horarioId""")
+    suspend fun updateById(horarioId: Int,
+                           idEmpresa: Int,
+                           horaDeSalida: String,
+                           horaDeLlegada: String,
+                           seAnuncia: String,
+                           nota: String) : Int
+
     //SELECTS
     @Query("SELECT * FROM horarios")
     suspend fun getAll() : List<Horario>

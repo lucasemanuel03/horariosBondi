@@ -1,6 +1,7 @@
 package com.lucas.mibondiya.screens
 
 import android.R
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,6 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,19 +46,33 @@ import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.lucas.mibondiya.controller.getHorarioById
 import com.lucas.mibondiya.controller.guardarHorarioEditado
+import com.lucas.mibondiya.controller.horaConvertida
+import com.lucas.mibondiya.data.model.Horario
+import com.lucas.mibondiya.data.model.HorarioCompleto
 import com.lucas.mibondiya.data.model.HorarioMock
 import com.lucas.mibondiya.navigation.AppScreens
+import com.lucas.mibondiya.viewModel.HorarioViewModel
+import com.lucas.mibondiya.viewModel.ReferenciasViewModel
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.forEach
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun EditHorarioScreen(navController: NavController, sentido: String = "", idHorario: Int = 1){
 
+    val horario = remember { mutableStateOf<Horario?>(null) }
 
-    val horario = getHorarioById(idHorario, sentido)
-
+    val viewModelHorario : HorarioViewModel = hiltViewModel()
+    // Cargar el horario cuando se entra a la pantalla
+    LaunchedEffect(idHorario) {
+        viewModelHorario.getHorarioById(idHorario) { resultado ->
+            horario.value = resultado
+        }
+    }
 
     Scaffold (
         topBar = {
@@ -79,7 +97,7 @@ fun EditHorarioScreen(navController: NavController, sentido: String = "", idHora
         },
         content = { innerPadding ->
 
-            ContenidoPrincipal(innerPadding, horario, sentido)},
+            ContenidoPrincipal(innerPadding, horario.value, sentido, viewModelHorario)},
         )
 
 
@@ -87,8 +105,8 @@ fun EditHorarioScreen(navController: NavController, sentido: String = "", idHora
 }
 
 @Composable
-fun ContenidoPrincipal(innerPadding: PaddingValues, horario: HorarioMock?, sentido: String = ""){
-    CardEditHorario(horario = horario, sentido =  sentido, padding = innerPadding)
+fun ContenidoPrincipal(innerPadding: PaddingValues, horario: Horario?, sentido: String = "", viewModel: HorarioViewModel){
+    CardEditHorario(horario = horario, sentido =  sentido, viewModel = viewModel, padding = innerPadding)
 
 }
 
@@ -96,31 +114,38 @@ fun ContenidoPrincipal(innerPadding: PaddingValues, horario: HorarioMock?, senti
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentido:String = "", padding: PaddingValues){
+fun CardEditHorario(modifier: Modifier = Modifier, horario: Horario?, sentido:String = "", viewModel: HorarioViewModel, padding: PaddingValues){
     val radioOptions = listOf<String>("Jesús Maria a Córdoba", "Córdoba a Jesús María")
     val frecuenciaOptions = listOf<String>("Diario (Lun a Dom)", "Lun A Vie")
-    val empresasOptions = listOf<String>("Grupo FAM", "Fono Bus")
-    var empresaSeleccionada by remember { mutableStateOf(horario?.empresa?.nombre ?: "Sin Empresa") }
+
+    val viewModelRef : ReferenciasViewModel = hiltViewModel()
+
+    val listaEmpresas by viewModelRef.empresas.collectAsState()
+
+    // NO CARGA HASTA QUE NO ESTÉN LOS DATOS TRAIDOS DE LA DB
+    if ((horario == null) or listaEmpresas.isEmpty()) {
+        CircularProgressIndicator()
+        return
+    }
+
+    val empresaInicial = listaEmpresas.find { it.id == (horario?.empresa_id ?: -1) }
+    var empresaSeleccionada by remember { mutableStateOf(empresaInicial) }
+
     var frecSeleccionada by remember { mutableStateOf(frecuenciaOptions[0]) }
-    var seAnuncia by remember { mutableStateOf("") }
-    var notas by remember { mutableStateOf("") }
+    var seAnuncia by remember { mutableStateOf(horario?.seAnuncia ?: "") }
+    var notas by remember { mutableStateOf(horario?.notas ?: "") }
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
 
-    val idHorario = horario?.id ?: 123
-    val ciudadInicio = horario?.ciudadInicio?.nombre ?: "ciudad"
-    val ciudadFin = horario?.ciudadFin?.nombre ?: "ciudad"
-    var horaSalidaHorario = horario?.horaSalida ?: "00:00"
-    horaSalidaHorario = horaSalidaHorario.removeRange(2, 3)
+    val idHorario = horario?.id ?: 99
+    val ciudadInicio = horario?.ciudad_inicio_id ?: 1
+    val ciudadFin = horario?.ciudad_fin_id ?: 1
 
-    var horaLlegadaHorario = horario?.horaLlegada ?: "00:00"
-    horaLlegadaHorario = horaLlegadaHorario.removeRange(2, 3)
+    val horaSalidaInicial = horario?.horaSalida?.replace(":", "") ?: "0000"
+    var horaSalida by remember { mutableStateOf(horaSalidaInicial) }
 
+    val horaLlegadaInicial = horario?.horaLlegada?.replace(":", "") ?: "0000"
+    var horaLlegada by remember { mutableStateOf(horaLlegadaInicial) }
 
-    var horaSalida by remember { mutableStateOf(horaSalidaHorario) }
-    var horaLlegada by remember { mutableStateOf(horaLlegadaHorario) }
-
-    val seAnunciaHorario = horario?.seAnuncia ?: "No anuncia"
-    val notasHorario = horario?.notas ?: "Sin notas..."
 
     var seGuardoHorario by remember {mutableStateOf(false)}
 
@@ -147,7 +172,7 @@ fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentid
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = ciudadInicio,
+                value = ciudadInicio.toString(),
                 onValueChange = {}, // obligatorio aunque esté deshabilitado
                 label = { Text("Ciudad de Salida") },
                 enabled = false,
@@ -156,7 +181,7 @@ fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentid
 
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = ciudadFin,
+                value = ciudadFin.toString(),
                 onValueChange = {}, // obligatorio aunque esté deshabilitado
                 label = { Text("Ciudad de Llegada") },
                 enabled = false,
@@ -166,7 +191,7 @@ fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentid
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            DropdownSelector(empresasOptions,
+            DropdownSelectorEmpresa(listaEmpresas,
                 "Empresa Prestadora",
                 opcionSeleccionada = empresaSeleccionada,
                 onOptionSelected = {empresaSeleccionada = it})
@@ -183,19 +208,27 @@ fun CardEditHorario(modifier: Modifier = Modifier, horario: HorarioMock?, sentid
             Spacer(modifier = Modifier.height(16.dp))
             HoraField(horaLlegada, "Hora de Llegada", onHoraChange = { horaLlegada = it})
             Spacer(modifier = Modifier.height(16.dp))
-            InputText(seAnunciaHorario,"El horario se anuncia a", onTextChange = {seAnuncia = it})
+            InputText(seAnuncia,"El horario se anuncia a", onTextChange = {seAnuncia = it})
             Spacer(modifier = Modifier.height(16.dp))
-            InputText(notasHorario,"Notas extras... (Opcional)", onTextChange = {notas = it})
+            InputText(notas,"Notas extras... (Opcional)", onTextChange = {notas = it})
             Spacer(modifier = Modifier.height(26.dp))
 
-            Button(onClick = {seGuardoHorario = guardarHorarioEditado(
+            Button(onClick = {viewModel.editarHorario(
                 idHorario,
-                sentido,
-                empresaSeleccionada,
-                horaSalida,
-                horaLlegada,
+                empresaSeleccionada?.id ?: 1,
+                horaConvertida(horaSalida),
+                horaConvertida(horaLlegada),
                 seAnuncia,
-                notas )
+                notas)
+            {
+                   modificado ->
+                if (modificado) {
+                    Log.d("MODIFICACION_HORARIO", "Modificado con éxito")
+                    seGuardoHorario = true
+                } else {
+                    Log.d("MODIFICACION_HORARIO", "No se modificó")
+                }
+            }
             }) {
                 Icon(
                     imageVector = Icons.Default.Done,

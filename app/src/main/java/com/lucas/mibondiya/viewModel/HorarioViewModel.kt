@@ -63,6 +63,39 @@ class HorarioViewModel @Inject constructor(
         }
     }
 
+    fun eliminarHorarioPorId(horarioId: Int, onResultado: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val filasAfectadas = horarioDao.deleteById(horarioId)
+            onResultado(filasAfectadas > 0)
+        }
+    }
+
+    fun editarHorario(horarioId: Int,
+                      idEmpresa: Int,
+                      horaDeSalida: String,
+                      horaDeLlegada: String,
+                      seAnuncia: String,
+                      nota: String,
+                      onResultado: (Boolean) -> Unit) {
+
+        viewModelScope.launch {
+            val filasAfectadas = horarioDao.updateById(horarioId, idEmpresa, horaDeSalida, horaDeLlegada, seAnuncia, nota)
+            onResultado(filasAfectadas > 0)
+        }
+    }
+
+    fun getHorarioById(
+        horarioId: Int,
+        onResultado: (Horario?) -> Unit
+    ) {
+        viewModelScope.launch {
+            val resultado = horarioDao.getById(horarioId)
+            onResultado(resultado)
+        }
+    }
+
+
+
     //init ==> es una funcion automática que se ejecuta al instanciar la clase
     init {
         viewModelScope.launch {

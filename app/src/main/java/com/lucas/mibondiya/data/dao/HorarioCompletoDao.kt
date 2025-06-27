@@ -35,7 +35,7 @@ interface HorarioCompletoDao {
         INNER JOIN ciudades cf ON h.ciudad_fin_id = cf.id
         WHERE h.id = :horarioId
     """)
-    suspend fun getHorarioCompletoById(horarioId: Int): HorarioCompleto?
+    suspend fun getById(horarioId: Int): HorarioCompleto?
 
     @Query("""
         SELECT h.id, h.horaSalida, h.horaLlegada, 

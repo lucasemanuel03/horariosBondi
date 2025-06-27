@@ -143,14 +143,14 @@ fun ContenidoPrincipal(navController: NavController,
         HeaderLeyenda()
         LazyColumn() {
             items(horariosOrdenados) { horario ->
-                CardHorarioToEdit(navController, horario, opcion, modifier = Modifier)
+                CardHorarioToEdit(navController, horario, opcion, viewModelHorario, modifier = Modifier)
             }
         }
     }
 }
 
 @Composable
-fun CardHorarioToEdit(navController: NavController, horario: HorarioCompleto, opcion: String, modifier: Modifier){
+fun CardHorarioToEdit(navController: NavController, horario: HorarioCompleto, opcion: String, viewModel: HorarioViewModel, modifier: Modifier){
     var expandida by remember { mutableStateOf(false) }
     var openAlertDialog by remember { mutableStateOf(false) }
 
@@ -281,7 +281,7 @@ fun CardHorarioToEdit(navController: NavController, horario: HorarioCompleto, op
                                 modifier = Modifier.size(ButtonDefaults.IconSize))
                             Text("Eliminar") }
 
-                        DialogDelete(openAlertDialog, horario.id, opcion, { openAlertDialog = false }, { openAlertDialog = false })
+                        DialogDelete(openAlertDialog, horario.id, opcion, viewModel, { openAlertDialog = false }, { openAlertDialog = false })
                     }
                 }
 
@@ -296,6 +296,7 @@ fun DialogDelete(
     openDialog: Boolean,
     idHorario: Int = 1,
     opcion: String = "",
+    viewModel: HorarioViewModel,
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit){
 
@@ -317,7 +318,14 @@ fun DialogDelete(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        MockDataService.deleteHorarioById(idHorario, opcion)
+                        viewModel.eliminarHorarioPorId(horarioId = idHorario) {
+                                eliminado ->
+                            if (eliminado) {
+                                Log.d("HORARIO_DELETE", "Eliminado con éxito")
+                            } else {
+                                Log.d("HORARIO_DELETE", "No se eliminó")
+                            }
+                        }
                         onConfirmation()
                     }
                 ) {
