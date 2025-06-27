@@ -11,22 +11,25 @@ import com.lucas.mibondiya.data.model.Horario
 interface HorarioDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertHorario(vararg horarios : Horario)
+    suspend fun insert(vararg horarios : Horario)
 
     @Delete()
-    fun delete(horario : Horario)
+    suspend fun delete(horario : Horario)
 
     //SELECTS
     @Query("SELECT * FROM horarios")
-    fun getAll() : List<Horario>
+    suspend fun getAll() : List<Horario>
 
     @Query("SELECT * FROM horarios WHERE id=:id")
-    fun getById(id :Int) : Horario
+    suspend fun getById(id :Int) : Horario
 
     @Query("SELECT * FROM horarios WHERE ciudad_inicio_id=:ciudadInicioId")
-    fun getAllHorariosCiudadInicio(ciudadInicioId : Int) : List<Horario>
+    suspend fun getAllHorariosCiudadInicio(ciudadInicioId : Int) : List<Horario>
 
     @Query("SELECT * FROM horarios WHERE ciudad_fin_id=:ciudadFinId")
-    fun getAllHorariosCiudadFin(ciudadFinId : Int) : List<Horario>
+    suspend fun getAllHorariosCiudadFin(ciudadFinId : Int) : List<Horario>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM horarios LIMIT 1)")
+    suspend fun hasAnyHorario(): Boolean
 
 }

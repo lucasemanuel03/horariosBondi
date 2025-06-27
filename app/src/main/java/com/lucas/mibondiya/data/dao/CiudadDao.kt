@@ -10,7 +10,7 @@ import com.lucas.mibondiya.data.model.Ciudad
 interface CiudadDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCiudad(vararg ciudades : Ciudad)
+    fun insert(vararg ciudades : Ciudad)
 
     //GETS
     @Query("SELECT * FROM  ciudades")

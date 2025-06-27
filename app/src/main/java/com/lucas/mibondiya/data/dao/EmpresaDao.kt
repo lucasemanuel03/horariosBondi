@@ -10,13 +10,13 @@ import com.lucas.mibondiya.data.model.Empresa
 interface EmpresaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertEmpresas(vararg empresas: Empresa)
+    fun insert(vararg empresas: Empresa)
 
     @Query("SELECT * FROM empresas")
-    fun getAllEmpresas() : Array<Empresa>
+    fun getAll() : Array<Empresa>
 
     @Query("SELECT * FROM empresas WHERE id=:id")
-    fun getByIdEmpresa(id : Int) : Empresa
+    fun getById(id : Int) : Empresa
 
 
 }

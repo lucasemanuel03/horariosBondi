@@ -207,6 +207,12 @@ object MockDataService {
     fun getEmpresa(id: String): Empresa? {
         return empresas.find { it.nombre == id }
     }
+
+    fun crearHorario(sentido :String, empresaId :String, horaSalida:String, horaLlegada:String, seAnuncia:String, notas:String) : HorarioMock{
+       TODO()
+        return TODO()
+    }
+
     fun getAllNombreEmpresas(): List<String>{
         val nombreEmpresas = mutableListOf<String>()
         for (empresa in empresas){

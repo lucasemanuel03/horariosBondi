@@ -6,7 +6,10 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "empresas")
 data class Empresa(
-    @PrimaryKey val id: Int,
-    @ColumnInfo val nombre: String,
-    @ColumnInfo(name = "id_imagen") val idImage: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
+    @ColumnInfo
+    val nombre: String,
+    @ColumnInfo(name = "id_image")
+    val idImage: Int,
 )

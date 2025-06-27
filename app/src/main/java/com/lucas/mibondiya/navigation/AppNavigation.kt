@@ -3,7 +3,7 @@ package com.lucas.mibondiya.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHost
+
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,6 +12,7 @@ import com.lucas.mibondiya.screens.EditHorarioScreen
 import com.lucas.mibondiya.screens.HorariosNowScreen
 import com.lucas.mibondiya.screens.MainScreen
 import com.lucas.mibondiya.screens.ShowHorariosForEditScreen
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

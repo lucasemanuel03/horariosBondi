@@ -27,11 +27,20 @@ import androidx.room.PrimaryKey
 ])
 
 data class Horario(
-    @PrimaryKey val id: Int,
-    @ColumnInfo var horaSalida: String,
-    @ColumnInfo var horaLlegada: String,
-    @ColumnInfo var empresa_id: Int,
-    @ColumnInfo var ciudad_inicio_id: Int,
-    @ColumnInfo var ciudad_fin_id: Int,
-    @ColumnInfo var notas: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium blandit felis. Mauris viverra sed est eu lacinia volutpat."
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
+    @ColumnInfo
+    var horaSalida: String,
+    @ColumnInfo
+    var horaLlegada: String,
+    @ColumnInfo
+    var empresa_id: Int,
+    @ColumnInfo
+    var ciudad_inicio_id: Int,
+    @ColumnInfo
+    var ciudad_fin_id: Int,
+    @ColumnInfo
+    var seAnuncia: String,
+    @ColumnInfo
+    var notas: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam pretium blandit felis. Mauris viverra sed est eu lacinia volutpat."
 )

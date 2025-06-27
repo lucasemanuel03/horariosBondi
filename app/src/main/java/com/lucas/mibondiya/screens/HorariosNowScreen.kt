@@ -1,6 +1,7 @@
 package com.lucas.mibondiya.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,12 +45,14 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.lucas.mibondiya.data.model.HorarioCompleto
 import com.lucas.mibondiya.data.model.HorarioMock
-import com.lucas.mibondiya.service.MockDataService
 import com.lucas.mibondiya.navigation.AppScreens
+import com.lucas.mibondiya.viewModel.HorarioViewModel
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
@@ -57,6 +61,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HorariosNowScreen(navController: NavController, opcion: String = ""){
     var modifier = Modifier
+    val viewModel: HorarioViewModel = hiltViewModel() // TRAIGO EL VIEWMODEL DESDE HILT **INYECTION**
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -80,29 +86,41 @@ fun HorariosNowScreen(navController: NavController, opcion: String = ""){
         },
         content = { innerPadding ->
 
-            ContenidoPrincipal(opcion, innerPadding, modifier)},
+            ContenidoPrincipal(opcion,viewModel, innerPadding, modifier)},
     )
 }
 
-@Preview(showSystemUi = true)
 @SuppressLint("NewApi")
 @Composable
 fun ContenidoPrincipal(opcion: String = "",
+                       viewModel : HorarioViewModel,
                        padding: PaddingValues = PaddingValues(28.dp),
                        @SuppressLint("ModifierParameter") modifier: Modifier = Modifier){
 
 
-    var horarios = listOf<HorarioMock>()
+    // ==============================================================
+    // TOMANDO LOS DATOS DESDE LA BASE DE DATOS SEGUN CIUDAD DESTINO
+    val idCiudadDestino = if (opcion == "Jesús Maria a Córdoba") 1 else 2
+
+    LaunchedEffect(idCiudadDestino) {
+        viewModel.setCiudadFin(idCiudadDestino)
+    }
+    val horarios by viewModel.horarios.collectAsState()
+    Log.d("HORARIOS", "Cantidad de horarios: ${horarios.size}")
+    // =============================================================
+
 
     //HORA ACTUAL
     val formatter = DateTimeFormatter.ofPattern("HH:mm")
     val ahora = LocalTime.now()
-
+    /*
     horarios = if (opcion == "Jesús Maria a Córdoba"){
         MockDataService.getHorariosToCba()
     }else{
         MockDataService.getHorariosToJM()
     }
+    */
+
 
     val horariosOrdenados = horarios.sortedBy {
         LocalTime.parse(it.horaSalida, formatter)
@@ -187,10 +205,10 @@ fun HeaderLeyenda() {
 }
 
 
-
+//MODIFICADA PARA HORARIO COMPLETO DE LA BD
 @Composable
-fun CardHorario(horario: HorarioMock, modifier: Modifier, yaPaso: Boolean){
-    val datosHorario = convertHorarioString(horario)
+fun CardHorario(horario: HorarioCompleto, modifier: Modifier, yaPaso: Boolean){
+    val datosHorario = DatosHorarioStr(horario.horaSalida, horario.horaLlegada, horario.empresaNombre, horario.empresaImagenId, horario.seAnuncia)
 
     // VARIABLES PARA ESTILO TARJETA HORARIO
     var backgroundColor = MaterialTheme.colorScheme.surfaceBright
